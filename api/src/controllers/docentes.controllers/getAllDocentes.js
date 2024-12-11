@@ -3,21 +3,22 @@ const pool = require('../../database/connection.js');
 module.exports = async(req,res)=>{
     //TRAE TODOS LOS DOCENTES DE LA TABLA docente
     console.log('ingresa a getAllDocentes');
-    const {filtroBusqueda} = req.body;
+    const {limit, page, filtroBusqueda} = req.body;
 
-    // console.log('que trae id_listado_inscriptos: ', id_listado_inscriptos);
-    // console.log('que trae limit: ', limit);
-    // console.log('que trae page: ', page);
-    // console.log('que trae filtroAsignacion: ', filtroAsignacion);
-    // console.log('que trae filtroEspecialidad: ', filtroEspecialidad);
+    console.log('que trae limit: ', limit );
+    console.log('que trae page: ', page);
     console.log('que trae filtroBusqueda: ', filtroBusqueda);
 
-    //const offset = (page-1)*limit;
+    // console.log('que trae id_listado_inscriptos: ', id_listado_inscriptos);
+    // console.log('que trae filtroAsignacion: ', filtroAsignacion);
+    // console.log('que trae filtroEspecialidad: ', filtroEspecialidad);
+
+    const offset = (page-1)*limit;
 
 
     let armaquery=`SELECT d.id_docente, d.dni, d.apellido, d.nombre
             FROM docente AS d
-            WHERE 1=1 
+            WHERE 1=1
             `;
 
     // if(filtroAsignacion==='asignados'){
@@ -48,7 +49,7 @@ module.exports = async(req,res)=>{
         }else{
             console.log('filtroBusqueda NO es Numero');
             armaquery+=` AND (LOWER(d.apellido) LIKE '%${filtroBusqueda.toLowerCase()}%' 
-                                OR LOWER(d.nombre) LIKE '%${filtroBusqueda.toLowerCase()}%' 
+                            
                         ) `
 
             armaquery+= ` ORDER BY d.apellido ASC`
@@ -58,20 +59,27 @@ module.exports = async(req,res)=>{
         //armaquery+= ` ORDER BY d.apellido ASC`
     }
 
+    //OR LOWER(d.nombre) LIKE '%${filtroBusqueda.toLowerCase()}%' 
     //armaquery+=` ORDER BY d.apellido ASC `
 
     try{
-        const [result] = await pool.query(`${armaquery}`);
+        const [result] = await pool.query(`${armaquery} LIMIT ${limit} OFFSET ${offset}`);
 
         console.log('que trae result getAllDocentes: ', result);
 
-        //const [totalRows]= await pool.query(`SELECT COUNT(*) AS count FROM (${armaquery}) AS inscriptos`)
+        const [totalRows]= await pool.query(`SELECT COUNT(*) AS count FROM (${armaquery}) AS inscriptos`)
 
-        //const totalPages= Math.ceil(totalRows[0]?.count/limit);
-        //const totalItems=totalRows[0]?.count;
+        const totalPages= Math.ceil(totalRows[0]?.count/limit);
+        const totalItems=totalRows[0]?.count;
 
         res.status(200).json({
-            result:result
+            result:result,
+            paginacion:{
+                page:page,
+                limit:limit,
+                totalPages:totalPages,
+                totalItems:totalItems
+            }
 
         });
         
