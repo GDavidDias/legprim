@@ -3,7 +3,9 @@ const {Router} = require('express');
 const {
     getAllFormacion,
     insertLegajoFormacion,
-    getAllFormacionLegajo
+    getAllFormacionLegajo,
+    insertFormacion,
+    updateFormacion
 } = require('../controllers/formacion.controllers');
 
 const router = Router();
@@ -17,6 +19,10 @@ router.post('/insertlegajoformacion', insertLegajoFormacion);
 //Trae todas las Formaciones del Legajo informado por parametro
 router.post('/allformacionlegajo/:idLegajo', getAllFormacionLegajo)
 
+//Inserta una nueva formacion
+router.post('/insertformacion', insertFormacion);
 
+//Actualiza formacion
+router.put('/updateformacion/:idFormacion', updateFormacion);
 
 module.exports = router;

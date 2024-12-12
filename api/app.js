@@ -8,6 +8,7 @@ const docentesRoutes = require('./src/routes/docentes.routes.js');
 const legajosRoutes = require('./src/routes/legajos.routes.js');
 const formacionRoutes = require('./src/routes/formacion.routes.js');
 const userRoutes = require('./src/routes/user.routes.js');
+const tablasAuxiliaresRoutes = require('./src/routes/tablasAuxiliares.routes.js');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api', docentesRoutes);
 app.use('/api', legajosRoutes);
 app.use('/api', formacionRoutes);
 app.use('/api', userRoutes);
+app.use('/api', tablasAuxiliaresRoutes);
 
 
 //server.listen(3001,()=>{console.log("Server Socket is Running")})
