@@ -258,7 +258,7 @@ const Docentes = () => {
                         </div>
                     </div>
                 </div>
-            </div>arbolito navidad
+            </div>
             {/* PARTE INFERIOR DE DATOS DE TABLA */}
             <div className='mx-2 h-[76vh] overflow-y-auto border-[1px] border-gray-400 rounded-md'>
                 <table>
@@ -441,7 +441,7 @@ const Docentes = () => {
                             </div>
                         </div>
                         <div className='border-[2px] border-blue-300 w-[50vw] h-[50vh] overflow-y-auto rounded-md'>
-                            <table className="border-[1px] bg-slate-50 w-[150%] table-fixed">
+                            <table className="border-[1px] bg-slate-50 desktop-xl:w-[100%] desktop-md:w-[150%] table-fixed">
                                 <thead>
                                     <tr className="sticky top-0 text-sm border-b-[2px] border-zinc-300 bg-zinc-200 ">
                                         <th className="w-[2mm] border-r-[1px] border-zinc-300"></th>
@@ -507,13 +507,15 @@ const Docentes = () => {
                             </div>
                         </div>
                         {/* LISTADO DE CURSOS */}
-                        <div className='border-[2px] border-blue-500 w-[30vw] h-[50vh] overflow-y-auto rounded-md'>
-                            <table className="border-[1px] bg-slate-50 w-[100%] table-fixed">
+                        <div className='border-[2px] border-blue-500 w-[30vw] h-[50vh] overflow-y-auto overflow-x-auto rounded-md'>
+                            <table className="border-[1px] bg-slate-50 desktop-xl:w-[100%] desktop-md:w-[150%] table-fixed">
                                 <thead>
                                     <tr className="sticky top-0 text-sm border-b-[2px] border-zinc-300 bg-zinc-200">
                                         {/* <th className="w-[25px] border-r-[1px] border-zinc-300"></th> */}
                                         <th className="w-[4mm] border-r-[1px] border-zinc-300">ID</th>
+                                        <th className="w-[50px] border-r-[1px] border-zinc-300">Resolucion</th>
                                         <th className="w-[150px] border-r-[1px] border-zinc-300">Nombre Curso</th>
+                                        <th className="w-[50px] border-r-[1px] border-zinc-300">Horas</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -533,7 +535,9 @@ const Docentes = () => {
                                                         </div>
                                                     </td> */}
                                                     <td className='w-[4mm] text-sm text-center'>{curso.id_formacion}</td>
+                                                    <td className='w-[50px] text-sm text-start'>{curso.resolucion}</td>
                                                     <td className='w-[150px] text-sm text-start'>{curso.descripcion}</td>
+                                                    <td className='w-[50px] text-sm text-start'>{curso.horas}</td>
                                                 </tr>
                                             )
                                         })

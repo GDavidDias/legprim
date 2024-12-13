@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { URL } from '../../varGlobal';
 
-export const fetchAllCE = async(filtroBusqueda) => {
+export const fetchAllCE = async(filtroBusqueda, filtroBusquedaResolucion) => {
     const dataBody = {
-        "filtroBusqueda":filtroBusqueda
+        "filtroBusqueda":filtroBusqueda,
+        "filtroBusquedaResolucion":filtroBusquedaResolucion
     }
 
     try{

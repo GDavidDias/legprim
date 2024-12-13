@@ -12,6 +12,7 @@ import { fetchAllEvaluacion } from '../../utils/fetchAllEvaluacion';
 import { fetchAllModalidad } from '../../utils/fetchAllModalidad';
 import axios from "axios";
 import {URL} from '../../../varGlobal';
+import { fetchAllNivel } from '../../utils/fetchAllNivel';
 
 const Formacion = () => {
 
@@ -21,8 +22,10 @@ const Formacion = () => {
     const[isOpenModalNuevaFormacion, openModalNuevaFormacion, closeModalNuevaFormacion]=useModal(false);
     const[isOpenModalVistaFormacion, openModalVistaFormacion, closeModalVistaFormacion]=useModal(false);
 
-    //E.L. para cuadro de busqueda
+    //E.L. para cuadro de busqueda Nombre Curso
     const[inputSearch, setInputSearch]=useState('');
+    //E.L. para cuadro de busqueda Resolucion
+    const[inputSearchRes, setInputSearchRes]=useState('');
 
     const[listadoCE, setListadoCE]=useState([]);
 
@@ -32,6 +35,7 @@ const Formacion = () => {
     const[listadoAlcance, setListadoAlcance]=useState([]);
     const[listadoEvaluacion, setListadoEvaluacion]=useState([]);
     const[listadoModalidad, setListadoModalidad]=useState([]);
+    const[listadoNivel, setListadoNivel]=useState([]);
 
     //E.L de formulario Formacion
     const[formFormacion, setFormFormacion]=useState({
@@ -44,7 +48,8 @@ const Formacion = () => {
         resolucion:'',
         id_alcance:'',
         id_evaluacion:'',
-        id_modalidad:''
+        id_modalidad:'',
+        id_nivel:''
     });
 
     //E.L. para validar si va a permitir guardar nueva vacante.
@@ -55,6 +60,8 @@ const Formacion = () => {
     const[mensajeModalInfo, setMensajeModalInfo]=useState('');
 
     const[editIdFormacion, setEditIdFormacion]=useState('');
+
+    const[institutoFormacion, setInstitutoFormacion]=useState('');
 
 
     const handleChangeValue = (event) => {
@@ -78,8 +85,18 @@ const Formacion = () => {
         setInputSearch('');
     };
 
-    const traeAllFormaciones = async(filtroBusquedaCE) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE);
+    const handleInputSearchChangeRes = (event) =>{
+        const {value} = event.target;
+        setInputSearchRes(value);
+        //setCurrentPage(1);
+    };
+
+    const handleCancelSearchRes =()=>{
+        setInputSearchRes('');
+    };
+
+    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResolucion) =>{
+        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResolucion);
         console.log('que tiene fetchAllCE: ', dataCE);
         if(dataCE?.length!=0){
             setListadoCE(dataCE);
@@ -91,7 +108,6 @@ const Formacion = () => {
     const submitNuevaFormacion = () =>{
         console.log('nueva Formacion');
         openModalNuevaFormacion();
-
     };
 
     //SE CARGAN LOS LISTADOS DE TABLAS AUXILIARES
@@ -125,6 +141,12 @@ const Formacion = () => {
             console.log('que trae listado modalidad: ', resmod);
             setListadoModalidad(resmod);
         }else{setListadoModalidad([])}
+
+        const resniv = await fetchAllNivel();
+        if(resniv.length!=0){
+            console.log('que trae listado nivel: ', resniv);
+            setListadoNivel(resniv);
+        }else{setListadoNivel([])}
     };
 
 
@@ -139,11 +161,12 @@ const Formacion = () => {
                 .catch(error=>{
                     console.log('que tiene error insertFormacion: ', error);
                 })
-            
+
         }catch(error){
             console.log('que traer error guardar nueva formacion: ', error.message);
         }
     };
+
 
     const submitCloseModalNotificacion = ()=>{
         closeModal();
@@ -160,7 +183,8 @@ const Formacion = () => {
             resolucion:'',
             id_alcance:'',
             id_evaluacion:'',
-            id_modalidad:''
+            id_modalidad:'',
+            id_nivel:''
         });
         traeAllFormaciones();
     };
@@ -180,7 +204,8 @@ const Formacion = () => {
             resolucion:datos.resolucion,
             id_alcance:datos.id_alcance,
             id_evaluacion:datos.id_evaluacion,
-            id_modalidad:datos.id_modalidad
+            id_modalidad:datos.id_modalidad,
+            id_nivel:datos.id_nivel
         });
 
         setEditIdFormacion(datos.id_formacion);
@@ -216,7 +241,8 @@ const Formacion = () => {
             resolucion:'',
             id_alcance:'',
             id_evaluacion:'',
-            id_modalidad:''
+            id_modalidad:'',
+            id_nivel:''
         });
     };
 
@@ -230,23 +256,31 @@ const Formacion = () => {
         return{formatoFecha};
     };
 
+    const handleChangeInstitutoFormacion =(datos)=>{
+        console.loe('que tiene handleChangeInstitutoFormacion: ', datos);
+    };
+
 
     useEffect(()=>{
-        traeAllFormaciones(inputSearch);
-    },[inputSearch]);
+        console.log('que tiene inputSearch: ', inputSearch);
+        console.log('que tiene inputSearchRes: ', inputSearchRes);
+        traeAllFormaciones(inputSearch, inputSearchRes);
+    },[inputSearch, inputSearchRes]);
+
 
     useEffect(()=>{
         console.log('que tiene formFormacion: ', formFormacion);
-        if(formFormacion.cantidad_horas!="" && formFormacion.descripcion!="" && formFormacion.fecha_emision!="" && formFormacion.id_alcance!="" && formFormacion.id_categoria!="" && formFormacion.id_evaluacion!="" && formFormacion.id_institucion!="" && formFormacion.id_modalidad!="" & formFormacion.puntaje!="" && formFormacion.resolucion!=""){
+        if(formFormacion.cantidad_horas!="" && formFormacion.descripcion!="" && formFormacion.fecha_emision!="" && formFormacion.id_alcance!="" && formFormacion.id_categoria!="" && formFormacion.id_evaluacion!="" && formFormacion.id_institucion!="" && formFormacion.id_modalidad!="" & formFormacion.puntaje!="" && formFormacion.resolucion!="" && formFormacion.id_nivel!=""){
             setValidaFormFormacion(true);
         }else{
             setValidaFormFormacion(false);
         }
 
-    },[formFormacion])
+    },[formFormacion]);
+
 
     useEffect(()=>{
-        traeAllFormaciones(inputSearch);
+        traeAllFormaciones(inputSearch, inputSearchRes);
         traeTablasAuxiliares();
     },[])
 
@@ -259,7 +293,7 @@ const Formacion = () => {
         <div className='mb-2'>
             {/* PARTE SUPERIOR DE TABLA */}
             <div className="w-[50%] mb-2 flex justify-start ">
-                {/* BUCADOR */}
+                {/* BUCADOR  CURSOS*/}
                 <div className="w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2">
                     <input 
                         className="w-[15vw]  focus:outline-none rounded"
@@ -273,6 +307,53 @@ const Formacion = () => {
                             <FaTimes
                                 className="text-slate-400 cursor-pointer text-lg"
                                 onClick={()=>handleCancelSearch()}
+                            />
+                        }
+                    </div>
+                </div>
+                {/* BUCADOR  RESOLUCION*/}
+                <div className="w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2">
+                    <input 
+                        className="w-[15vw] focus:outline-none rounded"
+                        placeholder="Buscar resolucion..."
+                        type="text"
+                        value={inputSearchRes}
+                        onChange={handleInputSearchChangeRes}
+                    />
+                    <div className="flex flex-row items-center">
+                        {(inputSearchRes!='') &&
+                            <FaTimes
+                                className="text-slate-400 cursor-pointer text-lg"
+                                onClick={()=>handleCancelSearchRes()}
+                            />
+                        }
+                    </div>
+                </div>
+                {/* FILTRO BUSQUEDA INSTITUCION */}
+                <div className='my-[2px]'>
+                    {/* <label className='mr-2'>Institucion: </label> */}
+                    <select 
+                        className='w-[70mm] border-purple-500 border-[1px]'
+                        name='id_institucion'
+                        value={institutoFormacion}
+                        onChange={()=>handleChangeInstitutoFormacion(event)}
+                    >
+                        <option value='' selected disabled>Seleccione Institucion...</option>
+                        {
+                            listadoInstituciones?.map((inst, index)=>(
+                                <option
+                                    key={index}
+                                    value={inst.id_institucion}
+                                    className='text-base '
+                                >{inst.descripcion}</option>
+                            ))
+                        }
+                    </select>
+                    <div>
+                        {(inputSearchRes!='') &&
+                            <FaTimes
+                                className="text-slate-400 cursor-pointer text-lg"
+                                onClick={()=>handleCancelSearchRes()}
                             />
                         }
                     </div>
@@ -303,6 +384,7 @@ const Formacion = () => {
                             <th className='w-[70mm]'>Institucion</th>
                             <th className='w-[90mm]'>Resolucion</th>
                             <th className='w-[50mm]'>Modalidad</th>
+                            <th className='w-[50mm]'>Nivel</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -322,6 +404,7 @@ const Formacion = () => {
                                         <td className='w-[70mm] text-center'>{formacion.institucion}</td>
                                         <td className='w-[90mm]'>{formacion.resolucion}</td>
                                         <td className='w-[50mm] text-center'>{formacion.modalidad}</td>
+                                        <td className='w-[50mm] text-center'>{formacion.nivel}</td>
                                         <td>
                                             <div className='flex justify-center'>
                                                 <FaEye 
@@ -495,6 +578,27 @@ const Formacion = () => {
                                         value={modal.id_modalidad}
                                         className='text-base '
                                     >{modal.descripcion}</option>
+                                ))
+                            }
+                        </select>
+                        {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
+                    </div>
+                    <div className='my-[2px]'>
+                        <label className='mr-2'>Nivel: </label>
+                        <select 
+                            className='w-[70mm] border-purple-500 border-[1px]'
+                            name='id_nivel'
+                            value={formFormacion?.id_nivel}
+                            onChange={handleChangeValue}
+                        >
+                            <option value='' selected disabled>Seleccione...</option>
+                            {
+                                listadoNivel?.map((nivel, index)=>(
+                                    <option
+                                        key={index}
+                                        value={nivel.id_nivel}
+                                        className='text-base '
+                                    >{nivel.descripcion}</option>
                                 ))
                             }
                         </select>
@@ -683,6 +787,27 @@ const Formacion = () => {
                                         value={modal.id_modalidad}
                                         className='text-base '
                                     >{modal.descripcion}</option>
+                                ))
+                            }
+                        </select>
+                        {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
+                    </div>
+                    <div className='my-[2px]'>
+                        <label className='mr-2'>Nivel: </label>
+                        <select 
+                            className='w-[70mm] border-purple-500 border-[1px]'
+                            name='id_nivel'
+                            value={formFormacion?.id_nivel}
+                            onChange={handleChangeValue}
+                        >
+                            <option value='' selected disabled>Seleccione...</option>
+                            {
+                                listadoNivel?.map((nivel, index)=>(
+                                    <option
+                                        key={index}
+                                        value={nivel.id_nivel}
+                                        className='text-base '
+                                    >{nivel.descripcion}</option>
                                 ))
                             }
                         </select>

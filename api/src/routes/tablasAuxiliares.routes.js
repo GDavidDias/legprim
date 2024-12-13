@@ -5,7 +5,8 @@ const {
     getAllCategorias,
     getAllEvaluacion,
     getAllInstitucion,
-    getAllModalidad
+    getAllModalidad,
+    getAllNivel
 } = require('../controllers/tablasAuxiliares.controllers');
 
 const router = Router();
@@ -24,6 +25,9 @@ router.get('/allinstituciones', getAllInstitucion);
 
 //trae todas las modalidades
 router.get('/allmodalidad', getAllModalidad);
+
+//trae todos los niveles
+router.get('/allnivel', getAllNivel);
 
 
 module.exports = router;
