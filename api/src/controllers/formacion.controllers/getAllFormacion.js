@@ -3,9 +3,10 @@ const pool = require('../../database/connection.js');
 module.exports = async(req,res)=>{
     //TRAE TODOS LOS CURSO DE TABLA FORMACION
 
-    const{filtroBusqueda, filtroBusquedaResolucion} = req.body;
+    const{filtroBusqueda, filtroBusquedaResolucion, filtroInstituto} = req.body;
     console.log('que trae filtroBusqueda: ', filtroBusqueda);
     console.log('que trae filtroBusquedaResolucion: ', filtroBusquedaResolucion);
+    console.log('que trae filtroInstituto: ', filtroInstituto);
 
     try{
 
@@ -27,6 +28,11 @@ module.exports = async(req,res)=>{
         //Condicion para Buscar por resolucion
         if(filtroBusquedaResolucion && filtroBusquedaResolucion!=''){
             armaquery += ` AND (LOWER (f.resolucion) LIKE '%${filtroBusquedaResolucion.toLowerCase()}%'  ) `;
+        }
+
+        //Filtro de busqueda de Instituto
+        if(filtroInstituto && filtroInstituto!=''){
+            armaquery += ` AND (LOWER (f.id_institucion) LIKE '%${filtroInstituto.toLowerCase()}%'  ) `;
         }
 
         armaquery += ` ORDER BY f.id_formacion DESC `

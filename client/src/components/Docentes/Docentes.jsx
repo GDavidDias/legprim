@@ -33,6 +33,7 @@ const Docentes = () => {
     //E.L. para cuadro de busqueda
     const[inputSearch, setInputSearch]=useState('');
     const[inputSearchCE, setInputSearchCE]=useState('');
+    const[inputSearchResCE, setInputSearchResCE]=useState('');
     const[inputSearchCL, setInputSearchCL]=useState('');
     const[datosDocenteSelect, setDatosDocenteSelect]=useState('');
     const[datosLegajoSelect, setDatosLegajoSelect]=useState('');
@@ -77,6 +78,15 @@ const Docentes = () => {
         setInputSearchCE('');
     };
 
+    const handleInputSearchResChangeCE = (event) =>{
+        const {value} = event.target;
+        setInputSearchResCE(value);
+    };
+
+    const handleCancelSearchResCE =()=>{
+        setInputSearchResCE('');
+    };
+
     const handleInputSearchChangeCL = (event) =>{
         const {value} = event.target;
         setInputSearchCL(value);
@@ -115,8 +125,8 @@ const Docentes = () => {
         openModalLegajo(true);
     };
 
-    const traeAllFormaciones = async(filtroBusquedaCE) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE);
+    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResCe) =>{
+        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResCe);
         console.log('que tiene fetchAllCE: ', dataCE);
         if(dataCE?.length!=0){
             setListadoCE(dataCE);
@@ -208,8 +218,8 @@ const Docentes = () => {
 
     useEffect(()=>{
         //Cl cargar en input CE
-        traeAllFormaciones(inputSearchCE);
-    },[inputSearchCE])
+        traeAllFormaciones(inputSearchCE, inputSearchResCE);
+    },[inputSearchCE, inputSearchResCE])
     
     useEffect(()=>{
         //Al cargar Input se actualiza 
@@ -228,7 +238,7 @@ const Docentes = () => {
   return (
     <div>
         <div>
-            <label className='ml-2 font-bold'>Docentes</label>
+            <label className='ml-2 text-lg font-bold'>Docentes</label>
         </div>
         {/* CONTENIDO DE PAGINA */}
         <div className=''>
@@ -236,7 +246,7 @@ const Docentes = () => {
             <div className='mb-2'>
                 {/* Campo de Busqueda */}
                 <div className="w-[50%]  flex justify-start ">
-                    <div className="w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2">
+                    <div className={` w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2`}>
                         <input 
                             className="w-[15vw]  focus:outline-none rounded"
                             placeholder="Buscar dni o apellido..."
@@ -377,13 +387,13 @@ const Docentes = () => {
             </div>
         </ModalEdit>
 
-        {/* MODAL LEGAJO */}
+        {/* MODAL LEGAJO CURSOS*/}
         <ModalEdit isOpen={isOpenModalLegajo} closeModal={closeModalLegajo}>
-        <div className="mt-2 w-[85vw] flex flex-col items-center">
+        <div className="w-[85vw] flex flex-col items-center">
                 {/* <h1 className="text-xl text-center font-bold">{mensajeModalConfirm}</h1> */}
                 <h1 className="text-xl text-center font-bold mb-2">Legajo Cursos</h1>
                 {/* DATOS DEL DOCENTE */}
-                <div className="mb-4 flex flex-row justify-end border-[1px] border-orange-500 p-2 rounded-md bg-orange-100">
+                <div className="mb-4 flex flex-row justify-end border-[1px] border-orange-500 px-2 py-[4px] rounded-md bg-orange-100">
                     <div className='mr-2 flex flex-col justify-end '>
                         <label className='font-semibold'>Especialidad: </label>
                         <input 
@@ -421,24 +431,47 @@ const Docentes = () => {
                     {/* PARTE IZQUIERDA DE LISTADO DE CURSOS */}
                     <div >
                         <label className='font-bold'>Cursos Existentes</label>
-                        {/* BUSCARDOR CURSOS EXISTENTES */}
-                        <div className="mb-2 w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
-                            <input 
-                                className="w-[15vw]  focus:outline-none rounded "
-                                placeholder="Buscar nombre curso..."
-                                type="text"
-                                value={inputSearchCE}
-                                onChange={handleInputSearchChangeCE}
-                            />
-                            <div className="flex flex-row items-center ">
-                                {(inputSearchCE!='') &&
-                                    <FaTimes
-                                        className="text-slate-400 cursor-pointer text-lg"
-                                        onClick={()=>handleCancelSearchCE()}
-                                    />
-                                }
+                        {/* BUSCADORES Y FILTROS */}
+                        <div className='flex flex-row'>
+                            {/* BUSCARDOR CURSOS NOMBRE */}
+                            <div className="mb-2 mr-2 w-[70mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
+                                <input 
+                                    className="w-[65mm]  focus:outline-none rounded "
+                                    placeholder="Buscar nombre curso..."
+                                    type="text"
+                                    value={inputSearchCE}
+                                    onChange={handleInputSearchChangeCE}
+                                />
+                                <div className="flex flex-row items-center ">
+                                    {(inputSearchCE!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                            onClick={()=>handleCancelSearchCE()}
+                                        />
+                                    }
 
+                                </div>
                             </div>
+                            {/* BUSCARDOR CURSOS RESOLUCION */}
+                            <div className="mb-2 w-[50mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
+                                <input 
+                                    className="w-[45mm]  focus:outline-none rounded "
+                                    placeholder="Buscar Resolucion..."
+                                    type="text"
+                                    value={inputSearchResCE}
+                                    onChange={handleInputSearchResChangeCE}
+                                />
+                                <div className="flex flex-row items-center ">
+                                    {(inputSearchResCE!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                            onClick={()=>handleCancelSearchResCE()}
+                                        />
+                                    }
+
+                                </div>
+                            </div>
+
                         </div>
                         <div className='border-[2px] border-blue-300 w-[50vw] h-[50vh] overflow-y-auto rounded-md'>
                             <table className="border-[1px] bg-slate-50 desktop-xl:w-[100%] desktop-md:w-[150%] table-fixed">
@@ -489,7 +522,7 @@ const Docentes = () => {
                     <div>
                         <label className='font-bold'>Cursos del legajo</label>
                         {/* BUSCARDOR CURSOS DEL LEGAJO */}
-                        <div className="mb-2 w-[20vw]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2 bg-white">
+                        <div className="mb-2 w-[20vw]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mr-2 bg-white">
                             <input 
                                 className="w-[15vw]  focus:outline-none rounded"
                                 placeholder="Buscar nombre curso..."

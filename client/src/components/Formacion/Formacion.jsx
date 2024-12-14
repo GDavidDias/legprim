@@ -95,8 +95,10 @@ const Formacion = () => {
         setInputSearchRes('');
     };
 
-    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResolucion) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResolucion);
+
+
+    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto) =>{
+        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto);
         console.log('que tiene fetchAllCE: ', dataCE);
         if(dataCE?.length!=0){
             setListadoCE(dataCE);
@@ -256,16 +258,24 @@ const Formacion = () => {
         return{formatoFecha};
     };
 
-    const handleChangeInstitutoFormacion =(datos)=>{
-        console.loe('que tiene handleChangeInstitutoFormacion: ', datos);
+    const handleChangeInstitutoFormacion =(event)=>{
+        const{name, value} = event.target;
+        console.log('que tiene name: ',name);
+        console.log('que tiene value: ',value);
+        setInstitutoFormacion(value);
     };
+
+    const handleCancelInstitutoFormacion = () => {
+        setInstitutoFormacion('');
+    };  
 
 
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
         console.log('que tiene inputSearchRes: ', inputSearchRes);
-        traeAllFormaciones(inputSearch, inputSearchRes);
-    },[inputSearch, inputSearchRes]);
+        console.log('que tiene institutoFormacion: ', institutoFormacion);
+        traeAllFormaciones(inputSearch, inputSearchRes, institutoFormacion);
+    },[inputSearch, inputSearchRes, institutoFormacion]);
 
 
     useEffect(()=>{
@@ -287,16 +297,21 @@ const Formacion = () => {
   return (
     <div>
         <div>
-            <label className='ml-2 font-bold'>Formacion</label>
+            <label className='ml-2 text-lg font-bold'>Formacion</label>
         </div>
         {/* CONTENIDO DE PAGINA */}
         <div className='mb-2'>
             {/* PARTE SUPERIOR DE TABLA */}
-            <div className="w-[50%] mb-2 flex justify-start ">
+            <div className="w-[50%] mb-2 flex justify-start items-center">
                 {/* BUCADOR  CURSOS*/}
-                <div className="w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2">
+                <div className="w-[50mm] border-[1px] border-purple-500  rounded flex flex-row items-center justify-between mx-2 h-[7mm]">
                     <input 
-                        className="w-[15vw]  focus:outline-none rounded"
+                        className={` ml-2 focus:outline-none rounded
+                            ${(inputSearch!='')
+                                ?`w-[35mm]`
+                                :`w-[40mm]`
+                            }
+                            `}
                         placeholder="Buscar curso..."
                         type="text"
                         value={inputSearch}
@@ -305,16 +320,21 @@ const Formacion = () => {
                     <div className="flex flex-row items-center">
                         {(inputSearch!='') &&
                             <FaTimes
-                                className="text-slate-400 cursor-pointer text-lg"
+                                className="text-slate-400 cursor-pointer text-lg w-[5mm]"
                                 onClick={()=>handleCancelSearch()}
                             />
                         }
                     </div>
                 </div>
                 {/* BUCADOR  RESOLUCION*/}
-                <div className="w-[20vw] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mx-2">
+                <div className="w-[50mm] border-[1px] border-purple-500  rounded flex flex-row items-center justify-between mx-2 h-[7mm]">
                     <input 
-                        className="w-[15vw] focus:outline-none rounded"
+                        className={`w-[15vw] ml-2 focus:outline-none rounded
+                            ${(inputSearchRes!='')
+                                ?`w-[35mm]`
+                                :`w-[40mm]`
+                            }
+                            `}
                         placeholder="Buscar resolucion..."
                         type="text"
                         value={inputSearchRes}
@@ -323,20 +343,25 @@ const Formacion = () => {
                     <div className="flex flex-row items-center">
                         {(inputSearchRes!='') &&
                             <FaTimes
-                                className="text-slate-400 cursor-pointer text-lg"
+                                className="text-slate-400 cursor-pointer text-lg w-[5mm]"
                                 onClick={()=>handleCancelSearchRes()}
                             />
                         }
                     </div>
                 </div>
                 {/* FILTRO BUSQUEDA INSTITUCION */}
-                <div className='my-[2px]'>
+                <div className='w-[70mm] my-[2px] mx-2 p-[2px] flex flex-row items-center  border-purple-500 border-[1px] rounded-md'>
                     {/* <label className='mr-2'>Institucion: </label> */}
                     <select 
-                        className='w-[70mm] border-purple-500 border-[1px]'
+                        className={` focus:outline-none
+                            ${(institutoFormacion!='')
+                                ?`w-[60mm]`
+                                :`w-[65mm]`
+                            }
+                            `}
                         name='id_institucion'
                         value={institutoFormacion}
-                        onChange={()=>handleChangeInstitutoFormacion(event)}
+                        onChange={handleChangeInstitutoFormacion}
                     >
                         <option value='' selected disabled>Seleccione Institucion...</option>
                         {
@@ -349,11 +374,11 @@ const Formacion = () => {
                             ))
                         }
                     </select>
-                    <div>
-                        {(inputSearchRes!='') &&
+                    <div className=''>
+                        {(institutoFormacion!='') &&
                             <FaTimes
-                                className="text-slate-400 cursor-pointer text-lg"
-                                onClick={()=>handleCancelSearchRes()}
+                                className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                onClick={()=>handleCancelInstitutoFormacion()}
                             />
                         }
                     </div>
