@@ -12,6 +12,7 @@ import Modal from "../Modal/Modal";
 import { fetchAllFormacionlegajo } from '../../utils/fetchAllFormacionLegajo';
 import Paginador from "../Paginador/Paginador.jsx";
 import { useSelector } from 'react-redux';
+import { fetchAllInstituciones } from '../../utils/fetchAllInstitucion.js';
 
 
 const Docentes = () => {
@@ -34,9 +35,17 @@ const Docentes = () => {
     const[inputSearch, setInputSearch]=useState('');
     const[inputSearchCE, setInputSearchCE]=useState('');
     const[inputSearchResCE, setInputSearchResCE]=useState('');
+    const[inputSearchResCL, setInputSearchResCL]=useState('');
     const[inputSearchCL, setInputSearchCL]=useState('');
     const[datosDocenteSelect, setDatosDocenteSelect]=useState('');
     const[datosLegajoSelect, setDatosLegajoSelect]=useState('');
+
+    //estado guarda instituto seleccionado de los Cursos Existentes
+    const[institutoFormacion, setInstitutoFormacion]=useState('');
+    //estado guarda instituto seleccionado en Cursos del Legajo
+    const[institutoFormacionCL, setInstitutoFormacionCL]=useState('');
+
+    const[listadoInstituciones, setListadoInstitucion]=useState([]);
 
     //E.L. para guardar datos de paginacion
     const[paginacion, setPaginacion]=useState('');
@@ -97,6 +106,16 @@ const Docentes = () => {
         setInputSearchCL('');
     };
 
+    const handleInputSearchChangeResCL = (event) =>{
+        const {value} = event.target;
+        setInputSearchResCL(value);
+        
+    };
+
+    const handleCancelSearchResCL =()=>{
+        setInputSearchResCL('');
+    };
+
     const submitVerDatosDocente = async(datosDocente)=>{
         console.log('datos docente seleccionado: ', datosDocente);
         //busco legajos de docente seleccionado
@@ -125,8 +144,8 @@ const Docentes = () => {
         openModalLegajo(true);
     };
 
-    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResCe) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResCe);
+    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto) =>{
+        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto);
         console.log('que tiene fetchAllCE: ', dataCE);
         if(dataCE?.length!=0){
             setListadoCE(dataCE);
@@ -183,14 +202,14 @@ const Docentes = () => {
 
     const closeModalNotifInsertFormacion=async()=>{
         //se actualiza Parte Derecha de CUrsos del legjo
-        traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL);
+        traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL, inputSearchResCL);
 
         //Se cierra Modal Notificaciones
         closeModal();
     };
 
-    const traeFormacionLegajo = async(idLegajo, filtroBusqueda) =>{
-        const data = await fetchAllFormacionlegajo(idLegajo, filtroBusqueda);
+    const traeFormacionLegajo = async(idLegajo, filtroBusqueda, filtroResolucion, filtroInstituto) =>{
+        const data = await fetchAllFormacionlegajo(idLegajo, filtroBusqueda, filtroResolucion, filtroInstituto);
 
         if(data?.length!=0){
             //Trae datos
@@ -216,15 +235,53 @@ const Docentes = () => {
         };
     };
 
+    const handleChangeInstitutoFormacion =(event)=>{
+        const{name, value} = event.target;
+        console.log('que tiene name: ',name);
+        console.log('que tiene value: ',value);
+        setInstitutoFormacion(value);
+    };
+
+    const handleCancelInstitutoFormacion = () => {
+        setInstitutoFormacion('');
+    };  
+
+    const handleChangeInstitutoFormacionCL =(event)=>{
+        const{name, value} = event.target;
+        console.log('que tiene name: ',name);
+        console.log('que tiene value: ',value);
+        setInstitutoFormacionCL(value);
+    };
+
+    const handleCancelInstitutoFormacionCL = () => {
+        setInstitutoFormacionCL('');
+    };  
+
+    //SE CARGAN LOS LISTADOS DE TABLAS AUXILIARES
+    const traeTablasAuxiliares = async() => {
+        // const rescat = await fetchAllCategorias();
+        // if(rescat.length!=0){
+        //     console.log('que trae listado categorias: ', rescat);
+        //     setListadoCategorias(rescat);
+        // }else{setListadoCategorias([])}
+
+        const resinst = await fetchAllInstituciones();
+        if(resinst.length!=0){
+            console.log('que trae listado instituciones: ', resinst);
+            setListadoInstitucion(resinst);
+        }else{setListadoInstitucion([])}
+
+    };
+
     useEffect(()=>{
         //Cl cargar en input CE
-        traeAllFormaciones(inputSearchCE, inputSearchResCE);
-    },[inputSearchCE, inputSearchResCE])
+        traeAllFormaciones(inputSearchCE, inputSearchResCE, institutoFormacion);
+    },[inputSearchCE, inputSearchResCE, institutoFormacion])
     
     useEffect(()=>{
         //Al cargar Input se actualiza 
-        traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL);
-    },[inputSearchCL]);
+        traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL, inputSearchResCL, institutoFormacionCL);
+    },[inputSearchCL, inputSearchResCL, institutoFormacionCL]);
 
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
@@ -233,6 +290,7 @@ const Docentes = () => {
 
     useEffect(()=>{
         fetchDocentes(currentPage);
+        traeTablasAuxiliares();
     },[])
 
   return (
@@ -284,7 +342,7 @@ const Docentes = () => {
                     <tbody>
                         {
                             listadoDocentes?.map((docente,index)=>{
-                                const colorFila = (((docente.id_docente%2)===0) ?`bg-zinc-200` :``)
+                                const colorFila = (((index%2)===0) ?`bg-zinc-200` :``)
                                 return(
                                     <tr
                                         className={`text-base font-medium border-b-[1px]  border-zinc-500 h-[5vh] ${colorFila}`}
@@ -320,7 +378,6 @@ const Docentes = () => {
                 />
 
             </div>
-
         </div>
 
         {/* MODAL SELECCION DE LEGAJO*/}
@@ -427,13 +484,13 @@ const Docentes = () => {
                 </div>
 
                 {/* SECCION DE CURSOS */}
-                <div className='border-[1px] border-sky-500 bg-violet-100 p-2 w-[85vw] h-[62vh] flex flex-row justify-between rounded-md'>
-                    {/* PARTE IZQUIERDA DE LISTADO DE CURSOS */}
+                <div className='border-[1px] border-sky-500 bg-violet-100 p-2 w-[85vw] max-h-[95vh] flex flex-row justify-between rounded-md'>
+                    {/* PARTE IZQUIERDA DE LISTADO DE CURSOS EXISTENTES*/}
                     <div >
                         <label className='font-bold'>Cursos Existentes</label>
                         {/* BUSCADORES Y FILTROS */}
-                        <div className='flex flex-row'>
-                            {/* BUSCARDOR CURSOS NOMBRE */}
+                        <div className='flex flex-row items-center justify-start flex-wrap'>
+                            {/* BUSCARDOR CURSOS POR NOMBRE */}
                             <div className="mb-2 mr-2 w-[70mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
                                 <input 
                                     className="w-[65mm]  focus:outline-none rounded "
@@ -452,7 +509,7 @@ const Docentes = () => {
 
                                 </div>
                             </div>
-                            {/* BUSCARDOR CURSOS RESOLUCION */}
+                            {/* BUSCARDOR CURSOS POR RESOLUCION */}
                             <div className="mb-2 w-[50mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
                                 <input 
                                     className="w-[45mm]  focus:outline-none rounded "
@@ -469,6 +526,40 @@ const Docentes = () => {
                                         />
                                     }
 
+                                </div>
+                            </div>
+                            {/* FILTRO BUSQUEDA INSTITUCION */}
+                            <div className='mb-2 w-[60mm] my-[2px] mx-2 p-[1px] flex flex-row items-center  border-zinc-400 border-[1px] rounded-md bg-white'>
+                                {/* <label className='mr-2'>Institucion: </label> */}
+                                <select 
+                                    className={` focus:outline-none
+                                        ${(institutoFormacion!='')
+                                            ?`w-[60mm]`
+                                            :`w-[55mm]`
+                                        }
+                                        `}
+                                    name='id_institucion'
+                                    value={institutoFormacion}
+                                    onChange={handleChangeInstitutoFormacion}
+                                >
+                                    <option value='' selected disabled>Seleccione Institucion...</option>
+                                    {
+                                        listadoInstituciones?.map((inst, index)=>(
+                                            <option
+                                                key={index}
+                                                value={inst.id_institucion}
+                                                className='text-base '
+                                            >{inst.descripcion}</option>
+                                        ))
+                                    }
+                                </select>
+                                <div className=' '>
+                                    {(institutoFormacion!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                            onClick={()=>handleCancelInstitutoFormacion()}
+                                        />
+                                    }
                                 </div>
                             </div>
 
@@ -516,29 +607,86 @@ const Docentes = () => {
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
+
                     {/* PARTE DERECHA DE CURSOS DEL LEGAJO */}
-                    <div>
+                    <div className=''>
                         <label className='font-bold'>Cursos del legajo</label>
-                        {/* BUSCARDOR CURSOS DEL LEGAJO */}
-                        <div className="mb-2 w-[20vw]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mr-2 bg-white">
-                            <input 
-                                className="w-[15vw]  focus:outline-none rounded"
-                                placeholder="Buscar nombre curso..."
-                                type="text"
-                                value={inputSearchCL}
-                                onChange={handleInputSearchChangeCL}
-                            />
-                            <div className="flex flex-row items-center">
-                                {(inputSearchCL!='') &&
-                                    <FaTimes
-                                        className="text-slate-400 cursor-pointer text-lg"
-                                        onClick={()=>handleCancelSearchCL()}
-                                    />
-                                }
+                        <div className='flex flex-row items-center justify-start flex-wrap'>
+                            {/* BUSCARDOR CURSOS DEL LEGAJO */}
+                            <div className="mb-2 w-[50mm]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mr-2 bg-white">
+                                <input 
+                                    className="w-[15vw]  focus:outline-none rounded"
+                                    placeholder="Buscar nombre curso..."
+                                    type="text"
+                                    onChange={handleInputSearchChangeCL}
+                                    value={inputSearchCL}
+                                />
+                                <div className="flex flex-row items-center">
+                                    {(inputSearchCL!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg"
+                                            onClick={()=>handleCancelSearchCL()}
+                                        />
+                                    }
+                                </div>
                             </div>
+                            {/* BUSCARDOR CURSOS POR RESOLUCION */}
+                            <div className="mb-2 w-[50mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
+                                <input 
+                                    className="w-[45mm]  focus:outline-none rounded "
+                                    placeholder="Buscar Resolucion..."
+                                    type="text"
+                                    value={inputSearchResCL}
+                                    onChange={handleInputSearchChangeResCL}
+                                />
+                                <div className="flex flex-row items-center ">
+                                    {(inputSearchResCL!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                            onClick={()=>handleCancelSearchResCL()}
+                                        />
+                                    }
+
+                                </div>
+                            </div>
+                            {/* FILTRO BUSQUEDA INSTITUCION */}
+                            <div className='mb-2 w-[60mm] my-[2px] mx-2 p-[1px] flex flex-row items-center  border-zinc-400 border-[1px] rounded-md bg-white'>
+                                {/* <label className='mr-2'>Institucion: </label> */}
+                                <select 
+                                    className={` focus:outline-none
+                                        ${(institutoFormacionCL!='')
+                                            ?`w-[60mm]`
+                                            :`w-[55mm]`
+                                        }
+                                        `}
+                                    name='id_institucion'
+                                    value={institutoFormacionCL}
+                                    onChange={handleChangeInstitutoFormacionCL}
+                                >
+                                    <option value='' selected disabled>Seleccione Institucion...</option>
+                                    {
+                                        listadoInstituciones?.map((inst, index)=>(
+                                            <option
+                                                key={index}
+                                                value={inst.id_institucion}
+                                                className='text-base '
+                                            >{inst.descripcion}</option>
+                                        ))
+                                    }
+                                </select>
+                                <div className=' '>
+                                    {(institutoFormacionCL!='') &&
+                                        <FaTimes
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
+                                            onClick={()=>handleCancelInstitutoFormacionCL()}
+                                        />
+                                    }
+                                </div>
+                            </div>
+
                         </div>
+
                         {/* LISTADO DE CURSOS */}
                         <div className='border-[2px] border-blue-500 w-[30vw] h-[50vh] overflow-y-auto overflow-x-auto rounded-md'>
                             <table className="border-[1px] bg-slate-50 desktop-xl:w-[100%] desktop-md:w-[150%] table-fixed">

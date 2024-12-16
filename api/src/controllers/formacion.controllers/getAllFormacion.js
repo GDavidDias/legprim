@@ -32,7 +32,7 @@ module.exports = async(req,res)=>{
 
         //Filtro de busqueda de Instituto
         if(filtroInstituto && filtroInstituto!=''){
-            armaquery += ` AND (LOWER (f.id_institucion) LIKE '%${filtroInstituto.toLowerCase()}%'  ) `;
+            armaquery += ` AND (f.id_institucion IN (${filtroInstituto})  ) `;
         }
 
         armaquery += ` ORDER BY f.id_formacion DESC `

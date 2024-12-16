@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { URL } from '../../varGlobal';
 
-export const fetchAllFormacionlegajo = async(idLegajo, filtroBusqueda) => {
+export const fetchAllFormacionlegajo = async(idLegajo, filtroBusqueda, filtroResolucion, filtroInstituto) => {
     const dataBody = {
-        "filtroBusqueda":filtroBusqueda
+        "filtroBusqueda":filtroBusqueda,
+        "filtroResolucion":filtroResolucion, 
+        "filtroInstituto": filtroInstituto
     }
 
     try{
