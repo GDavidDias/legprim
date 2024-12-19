@@ -13,6 +13,7 @@ import { fetchAllModalidad } from '../../utils/fetchAllModalidad';
 import axios from "axios";
 import {URL} from '../../../varGlobal';
 import { fetchAllNivel } from '../../utils/fetchAllNivel';
+import Paginador from '../Paginador/Paginador';
 
 const Formacion = () => {
 
@@ -63,6 +64,12 @@ const Formacion = () => {
 
     const[institutoFormacion, setInstitutoFormacion]=useState('');
 
+    //E.L. para guardar datos de paginacion
+    const[paginacion, setPaginacion]=useState('');
+
+    //pagina actual
+    const[currentPage, setCurrentPage]=useState(1);
+
 
     const handleChangeValue = (event) => {
         const{name, value} = event.target;
@@ -97,13 +104,16 @@ const Formacion = () => {
 
 
 
-    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto);
-        console.log('que tiene fetchAllCE: ', dataCE);
-        if(dataCE?.length!=0){
-            setListadoCE(dataCE);
+    const traeAllFormaciones = async(page, filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto) =>{
+        const limit=14;
+        const dataCE = await fetchAllCE(limit, page, filtroBusquedaCE, filtroBusquedaResolucion, filtroInstituto);
+        console.log('que tiene fetchAllCE: ', dataCE?.result);
+        if(dataCE?.result.length!=0){
+            setListadoCE(dataCE.result);
+            setPaginacion(dataCE.paginacion);
         }else{
             setListadoCE([]);
+            setPaginacion(dataCE.paginacion);
         }
     };
 
@@ -188,7 +198,7 @@ const Formacion = () => {
             id_modalidad:'',
             id_nivel:''
         });
-        traeAllFormaciones();
+        traeAllFormaciones(currentPage);
     };
 
     const submitVerDatosDocente = (datos) =>{
@@ -269,13 +279,21 @@ const Formacion = () => {
         setInstitutoFormacion('');
     };  
 
+    const handlePageChange = (nuevaPagina)=>{
+        console.log('que tiene paginacion: ', paginacion);
+
+        if(nuevaPagina>0 && nuevaPagina<=paginacion?.totalPages){
+            setCurrentPage(nuevaPagina);
+        };
+    };
+
 
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
         console.log('que tiene inputSearchRes: ', inputSearchRes);
         console.log('que tiene institutoFormacion: ', institutoFormacion);
-        traeAllFormaciones(inputSearch, inputSearchRes, institutoFormacion);
-    },[inputSearch, inputSearchRes, institutoFormacion]);
+        traeAllFormaciones(currentPage, inputSearch, inputSearchRes, institutoFormacion);
+    },[currentPage, inputSearch, inputSearchRes, institutoFormacion]);
 
 
     useEffect(()=>{
@@ -290,7 +308,7 @@ const Formacion = () => {
 
 
     useEffect(()=>{
-        traeAllFormaciones(inputSearch, inputSearchRes);
+        traeAllFormaciones(currentPage, inputSearch, inputSearchRes, institutoFormacion);
         traeTablasAuxiliares();
     },[])
 
@@ -446,6 +464,18 @@ const Formacion = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* SECCION PAGINACION */}
+            <div className="flex justify-center w-[50%] mt-2">
+                <Paginador
+                    currentpage={paginacion.page}
+                    totalpage={paginacion.totalPages}
+                    onPageChange={handlePageChange}
+                    totalItems={paginacion.totalItems}
+                />
+
+            </div>
+
         </div>
 
         {/* MODAL NUEVA FORMACION*/}

@@ -3,12 +3,16 @@ const pool = require('../../database/connection.js');
 module.exports = async(req,res)=>{
     //TRAE TODOS LOS CURSO DE TABLA FORMACION
 
-    const{filtroBusqueda, filtroBusquedaResolucion, filtroInstituto} = req.body;
+    const{limit, page, filtroBusqueda, filtroBusquedaResolucion, filtroInstituto} = req.body;
+    console.log('que trae limit: ', limit );
+    console.log('que trae page: ', page);
     console.log('que trae filtroBusqueda: ', filtroBusqueda);
     console.log('que trae filtroBusquedaResolucion: ', filtroBusquedaResolucion);
     console.log('que trae filtroInstituto: ', filtroInstituto);
 
     try{
+
+        const offset = (page-1)*limit;
 
         let armaquery = `SELECT f.id_formacion, f.id_categoria, c.descripcion AS categoria, f.descripcion, f.cantidad_horas, f.fecha_emision, f.id_institucion, i.descripcion AS institucion, f.puntaje, f.resolucion, f.id_alcance, f.id_evaluacion, f.id_modalidad, m.descripcion AS modalidad, f.id_nivel, n.descripcion AS nivel
             FROM formacion AS f 
@@ -37,13 +41,26 @@ module.exports = async(req,res)=>{
 
         armaquery += ` ORDER BY f.id_formacion DESC `
 
-        const [result] = await pool.query(armaquery);
-
-            
+        const [result] = await pool.query(`${armaquery} LIMIT ${limit} OFFSET ${offset}`);
 
         console.log('que trae result getAllFormacion: ', result);
 
-        res.status(200).json(result);
+        const [totalRows]= await pool.query(`SELECT COUNT(*) AS count FROM (${armaquery}) AS inscriptos`)
+
+        const totalPages= Math.ceil(totalRows[0]?.count/limit);
+
+        const totalItems=totalRows[0]?.count;
+
+        res.status(200).json({
+            result:result,
+            paginacion:{
+                page:page,
+                limit:limit,
+                totalPages:totalPages,
+                totalItems:totalItems
+            }
+
+        });
         
     }catch(error){
         res.status(400).send(error.message);

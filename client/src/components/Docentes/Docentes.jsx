@@ -53,6 +53,12 @@ const Docentes = () => {
     //pagina actual
     const[currentPage, setCurrentPage]=useState(1);
 
+    //E.L. para guardar datos de paginacion DE CE
+    const[paginacionCE, setPaginacionCE]=useState('');
+
+    //pagina actual DE CE
+    const[currentPageCE, setCurrentPageCE]=useState(1);
+
 
     const fetchDocentes = async(page)=>{
         const limit=14;
@@ -81,6 +87,7 @@ const Docentes = () => {
     const handleInputSearchChangeCE = (event) =>{
         const {value} = event.target;
         setInputSearchCE(value);
+        setCurrentPageCE(1);
     };
 
     const handleCancelSearchCE =()=>{
@@ -90,6 +97,7 @@ const Docentes = () => {
     const handleInputSearchResChangeCE = (event) =>{
         const {value} = event.target;
         setInputSearchResCE(value);
+        setCurrentPageCE(1);
     };
 
     const handleCancelSearchResCE =()=>{
@@ -134,7 +142,7 @@ const Docentes = () => {
         console.log('que datos tiene legajo: ', datosLegajo);
         setDatosLegajoSelect(datosLegajo);
         //Traer los cursos Existentes
-        traeAllFormaciones(inputSearchCE)
+        traeAllFormaciones(currentPageCE, inputSearchCE)
         //Traer los cursos del Legajo
         //se actualiza Parte Derecha de CUrsos del legjo
         traeFormacionLegajo(datosLegajo.id_legajo);
@@ -144,13 +152,16 @@ const Docentes = () => {
         openModalLegajo(true);
     };
 
-    const traeAllFormaciones = async(filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto) =>{
-        const dataCE = await fetchAllCE(filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto);
-        console.log('que tiene fetchAllCE: ', dataCE);
-        if(dataCE?.length!=0){
-            setListadoCE(dataCE);
+    const traeAllFormaciones = async(page, filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto) =>{
+        const limit=10;
+        const dataCE = await fetchAllCE(limit, page, filtroBusquedaCE, filtroBusquedaResCe, filtroInstituto);
+        console.log('que tiene fetchAllCE: ', dataCE?.result);
+        if(dataCE?.result.length!=0){
+            setListadoCE(dataCE.result);
+            setPaginacionCE(dataCE.paginacion);
         }else{
             setListadoCE([]);
+            setPaginacionCE(dataCE.paginacion);
         }
     };
 
@@ -240,6 +251,7 @@ const Docentes = () => {
         console.log('que tiene name: ',name);
         console.log('que tiene value: ',value);
         setInstitutoFormacion(value);
+        setCurrentPageCE(1);
     };
 
     const handleCancelInstitutoFormacion = () => {
@@ -251,6 +263,7 @@ const Docentes = () => {
         console.log('que tiene name: ',name);
         console.log('que tiene value: ',value);
         setInstitutoFormacionCL(value);
+        setCurrentPageCE(1);
     };
 
     const handleCancelInstitutoFormacionCL = () => {
@@ -273,16 +286,25 @@ const Docentes = () => {
 
     };
 
+    const handlePageChangeCE = (nuevaPagina)=>{
+        console.log('que tiene paginacion: ', paginacionCE);
+
+        if(nuevaPagina>0 && nuevaPagina<=paginacionCE?.totalPages){
+            setCurrentPageCE(nuevaPagina);
+        };
+    };    
+
     useEffect(()=>{
         //Cl cargar en input CE
-        traeAllFormaciones(inputSearchCE, inputSearchResCE, institutoFormacion);
-    },[inputSearchCE, inputSearchResCE, institutoFormacion])
+        traeAllFormaciones(currentPageCE, inputSearchCE, inputSearchResCE, institutoFormacion);
+    },[currentPageCE, inputSearchCE, inputSearchResCE, institutoFormacion])
     
     useEffect(()=>{
         //Al cargar Input se actualiza 
         traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL, inputSearchResCL, institutoFormacionCL);
     },[inputSearchCL, inputSearchResCL, institutoFormacionCL]);
 
+    //UseEffect de docentes
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
         fetchDocentes(currentPage);
@@ -479,7 +501,6 @@ const Docentes = () => {
                             value={datosDocenteSelect.nombre}
                         />
                     </div>
-                    
 
                 </div>
 
@@ -510,9 +531,9 @@ const Docentes = () => {
                                 </div>
                             </div>
                             {/* BUSCARDOR CURSOS POR RESOLUCION */}
-                            <div className="mb-2 w-[50mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
+                            <div className="mb-2 w-[40mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
                                 <input 
-                                    className="w-[45mm]  focus:outline-none rounded "
+                                    className="w-[35mm]  focus:outline-none rounded "
                                     placeholder="Buscar Resolucion..."
                                     type="text"
                                     value={inputSearchResCE}
@@ -562,8 +583,8 @@ const Docentes = () => {
                                     }
                                 </div>
                             </div>
-
                         </div>
+
                         <div className='border-[2px] border-blue-300 w-[50vw] h-[50vh] overflow-y-auto rounded-md'>
                             <table className="border-[1px] bg-slate-50 desktop-xl:w-[100%] desktop-md:w-[150%] table-fixed">
                                 <thead>
@@ -607,6 +628,16 @@ const Docentes = () => {
                                 </tbody>
                             </table>
                         </div>
+                        {/* SECCION PAGINACION */}
+                        <div className="flex justify-center w-[50%] mt-2">
+                            <Paginador
+                                currentpage={paginacionCE.page}
+                                totalpage={paginacionCE.totalPages}
+                                onPageChange={handlePageChangeCE}
+                                totalItems={paginacionCE.totalItems}
+                            />
+                        </div>
+
                     </div>
 
                     {/* PARTE DERECHA DE CURSOS DEL LEGAJO */}
@@ -614,9 +645,9 @@ const Docentes = () => {
                         <label className='font-bold'>Cursos del legajo</label>
                         <div className='flex flex-row items-center justify-start flex-wrap'>
                             {/* BUSCARDOR CURSOS DEL LEGAJO */}
-                            <div className="mb-2 w-[50mm]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mr-2 bg-white">
+                            <div className="mb-2 w-[40mm]  border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between mr-2 bg-white">
                                 <input 
-                                    className="w-[15vw]  focus:outline-none rounded"
+                                    className="w-[35mm]  focus:outline-none rounded"
                                     placeholder="Buscar nombre curso..."
                                     type="text"
                                     onChange={handleInputSearchChangeCL}
@@ -625,16 +656,16 @@ const Docentes = () => {
                                 <div className="flex flex-row items-center">
                                     {(inputSearchCL!='') &&
                                         <FaTimes
-                                            className="text-slate-400 cursor-pointer text-lg"
+                                            className="text-slate-400 cursor-pointer text-lg w-[5mm]"
                                             onClick={()=>handleCancelSearchCL()}
                                         />
                                     }
                                 </div>
                             </div>
                             {/* BUSCARDOR CURSOS POR RESOLUCION */}
-                            <div className="mb-2 w-[50mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
+                            <div className="mb-2 w-[30mm] border-[1px] border-zinc-400  rounded flex flex-row items-center justify-between bg-white">
                                 <input 
-                                    className="w-[45mm]  focus:outline-none rounded "
+                                    className="w-[25mm]  focus:outline-none rounded "
                                     placeholder="Buscar Resolucion..."
                                     type="text"
                                     value={inputSearchResCL}
@@ -651,13 +682,13 @@ const Docentes = () => {
                                 </div>
                             </div>
                             {/* FILTRO BUSQUEDA INSTITUCION */}
-                            <div className='mb-2 w-[60mm] my-[2px] mx-2 p-[1px] flex flex-row items-center  border-zinc-400 border-[1px] rounded-md bg-white'>
+                            <div className='mb-2 w-[40mm] my-[2px] mx-2 p-[1px] flex flex-row items-center  border-zinc-400 border-[1px] rounded-md bg-white'>
                                 {/* <label className='mr-2'>Institucion: </label> */}
                                 <select 
                                     className={` focus:outline-none
                                         ${(institutoFormacionCL!='')
-                                            ?`w-[60mm]`
-                                            :`w-[55mm]`
+                                            ?`w-[34mm]`
+                                            :`w-[38mm]`
                                         }
                                         `}
                                     name='id_institucion'
