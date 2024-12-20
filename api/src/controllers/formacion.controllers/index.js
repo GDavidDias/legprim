@@ -3,6 +3,7 @@ const insertLegajoFormacion = require('./insertLegajoFormacion.js');
 const getAllFormacionLegajo = require('./getAllFormacionlegajo.js');
 const insertFormacion = require('./insertFormacion.js');
 const updateFormacion = require('./updateFormacion.js');
+const deleteFormacion = require('./deleteFormacion.js');
 
 
 module.exports={
@@ -10,5 +11,6 @@ module.exports={
     insertLegajoFormacion,
     getAllFormacionLegajo,
     insertFormacion,
-    updateFormacion
+    updateFormacion,
+    deleteFormacion
 }

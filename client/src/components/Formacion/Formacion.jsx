@@ -50,7 +50,8 @@ const Formacion = () => {
         id_alcance:'',
         id_evaluacion:'',
         id_modalidad:'',
-        id_nivel:''
+        id_nivel:'',
+        observacion:''
     });
 
     //E.L. para validar si va a permitir guardar nueva vacante.
@@ -69,6 +70,9 @@ const Formacion = () => {
 
     //pagina actual
     const[currentPage, setCurrentPage]=useState(1);
+
+    //tipo de consulta
+    const[tipoConsultaSql, setTipoConsultaSql]=useState('');
 
 
     const handleChangeValue = (event) => {
@@ -164,6 +168,7 @@ const Formacion = () => {
 
     const submitGuardarFormacion = async() =>{
         console.log('se presiona boton Guardar Nueva Foramcion');
+        await agregaDatosAuditor();
         try{    
             await axios.post(`${URL}/api/insertformacion`,formFormacion)
                 .then(async res=>{
@@ -177,6 +182,34 @@ const Formacion = () => {
         }catch(error){
             console.log('que traer error guardar nueva formacion: ', error.message);
         }
+    };
+
+    const agregaDatosAuditor = async()=>{
+        const fechahoy = formatoFechaHora(obtenerFechaActual());
+        console.log('que tiene fecha hoy: ', fechahoy);
+
+        if(tipoConsultaSql==='insert'){
+            console.log('ES UN INSERT');
+            setFormFormacion((prevState)=>({
+                ...prevState,
+                user_create:userSG.username,
+                date_create: fechahoy
+            }));
+        }else if(tipoConsultaSql==='update'){
+            console.log('ES UN UPDATE');
+            setFormFormacion((prevState)=>({
+                ...prevState,
+                user_update:userSG.username,
+                date_update: fechahoy
+            }));
+        }
+    };
+
+    const obtenerFechaActual = () => {
+        const ahora = new Date();
+        const formatoMySQL = ahora.toISOString().slice(0, 19).replace('T', ' ');
+        return formatoMySQL; // Devuelve la fecha en formato 'YYYY-MM-DD HH:mm:ss'
+
     };
 
 
@@ -196,7 +229,8 @@ const Formacion = () => {
             id_alcance:'',
             id_evaluacion:'',
             id_modalidad:'',
-            id_nivel:''
+            id_nivel:'',
+            observacion:''
         });
         traeAllFormaciones(currentPage);
     };
@@ -217,7 +251,8 @@ const Formacion = () => {
             id_alcance:datos.id_alcance,
             id_evaluacion:datos.id_evaluacion,
             id_modalidad:datos.id_modalidad,
-            id_nivel:datos.id_nivel
+            id_nivel:datos.id_nivel,
+            observacion:datos.observacion
         });
 
         setEditIdFormacion(datos.id_formacion);
@@ -226,6 +261,7 @@ const Formacion = () => {
     };
 
     const submitGuardarVistaFormacion = async() => {
+        await agregaDatosAuditor();
         try{
             await axios.put(`${URL}/api/updateformacion/${editIdFormacion}`,formFormacion)
             .then(async res=>{
@@ -254,7 +290,8 @@ const Formacion = () => {
             id_alcance:'',
             id_evaluacion:'',
             id_modalidad:'',
-            id_nivel:''
+            id_nivel:'',
+            observacion:''
         });
     };
 
@@ -287,6 +324,9 @@ const Formacion = () => {
         };
     };
 
+    useEffect(()=>{
+        console.log('que tiene modificaVistaFormacion: ', modificaVistaFormacion);
+    },[modificaVistaFormacion])
 
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
@@ -421,7 +461,7 @@ const Formacion = () => {
                     <thead className='border-[1px] bg-slate-200 w-full w-[100%] table-fixed'>
                         <tr className='sticky top-0 text-base border-b-[1px] border-zinc-600 bg-purple-200'>
                             <th className='w-[10mm]'>ID</th>
-                            <th className='w-[120mm]'>Descripcion</th>
+                            <th className='w-[120mm]'>Nombre</th>
                             <th className='w-[50mm]'>Categoria</th>
                             <th className='w-[50mm]'>Horas</th>
                             <th className='w-[70mm]'>Institucion</th>
@@ -506,7 +546,7 @@ const Formacion = () => {
                         {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
                     </div>
                     <div className='my-[2px] flex justify-center'>
-                        <label className='mr-2'>Descripcion: </label>
+                        <label className='mr-2'>Nombre: </label>
                         <textarea 
                             className='border-[1px] border-purple-500 h-[20mm] w-[70mm]'
                             name='descripcion'
@@ -659,13 +699,23 @@ const Formacion = () => {
                         </select>
                         {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
                     </div>
+                    <div className='my-[2px] flex justify-center'>
+                        <label className='mr-2'>Observacion: </label>
+                        <textarea 
+                            className='border-[1px] border-purple-500 h-[20mm] w-[70mm]'
+                            name='observacion'
+                            type='text'
+                            value={formFormacion?.observacion}
+                            onChange={handleChangeValue}
+                        ></textarea>
+                    </div>
                 </div>
                 <div className="flex flex-row">
                     {(validaFormFormacion) &&
                         <div className="flex justify-center mr-2">
                             <button
                                 className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
-                                onClick={()=>submitGuardarFormacion()}
+                                onClick={()=>{submitGuardarFormacion();setTipoConsultaSql('insert')}}
                             >GUARDAR</button>
                         </div>
                     }
@@ -708,7 +758,7 @@ const Formacion = () => {
                         {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
                     </div>
                     <div className='my-[2px] flex justify-center'>
-                        <label className='mr-2'>Descripcion: </label>
+                        <label className='mr-2'>Nombre: </label>
                         {/* <input 
                             className='border-[1px] border-purple-500 w-[70mm]'
                             name='descripcion'
@@ -868,13 +918,22 @@ const Formacion = () => {
                         </select>
                         {/* <input className='border-[1px] border-purple-500 w-[50mm]'></input> */}
                     </div>
+                    <div className='my-[2px] flex items-center'>
+                        <label className='mr-2'>Observacion: </label>
+                        <textarea 
+                            className='border-[1px] border-purple-500 w-[70mm]'
+                            name='observacion'
+                            value={formFormacion?.observacion}
+                            onChange={handleChangeValue}
+                        ></textarea>
+                    </div>
                 </div>
                 <div className="flex flex-row">
-                    {(validaFormFormacion && modificaVistaFormacion) &&
+                    {(validaFormFormacion || modificaVistaFormacion) &&
                         <div className="flex justify-center mr-2">
                             <button
                                 className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
-                                onClick={()=>submitGuardarVistaFormacion()}
+                                onClick={()=>{submitGuardarVistaFormacion();setTipoConsultaSql('update')}}
                             >GUARDAR</button>
                         </div>
                     }
@@ -884,7 +943,9 @@ const Formacion = () => {
                             onClick={()=>submitCloseModalVistaFormacion()}
                         >CANCELAR</button>
                     </div>
-                </div>    
+                </div>  
+                
+
             </div>
         </ModalEdit>
 

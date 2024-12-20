@@ -5,7 +5,8 @@ const {
     insertLegajoFormacion,
     getAllFormacionLegajo,
     insertFormacion,
-    updateFormacion
+    updateFormacion,
+    deleteFormacion
 } = require('../controllers/formacion.controllers');
 
 const router = Router();
@@ -24,5 +25,8 @@ router.post('/insertformacion', insertFormacion);
 
 //Actualiza formacion
 router.put('/updateformacion/:idFormacion', updateFormacion);
+
+//Borra una Formacion
+router.put('/deleteformacion/:idFormacion', deleteFormacion);
 
 module.exports = router;

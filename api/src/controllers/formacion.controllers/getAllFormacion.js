@@ -14,7 +14,7 @@ module.exports = async(req,res)=>{
 
         const offset = (page-1)*limit;
 
-        let armaquery = `SELECT f.id_formacion, f.id_categoria, c.descripcion AS categoria, f.descripcion, f.cantidad_horas, f.fecha_emision, f.id_institucion, i.descripcion AS institucion, f.puntaje, f.resolucion, f.id_alcance, f.id_evaluacion, f.id_modalidad, m.descripcion AS modalidad, f.id_nivel, n.descripcion AS nivel
+        let armaquery = `SELECT f.id_formacion, f.id_categoria, c.descripcion AS categoria, f.descripcion, f.cantidad_horas, f.fecha_emision, f.id_institucion, i.descripcion AS institucion, f.puntaje, f.resolucion, f.id_alcance, f.id_evaluacion, f.id_modalidad, m.descripcion AS modalidad, f.id_nivel, n.descripcion AS nivel, f.observacion
             FROM formacion AS f 
             LEFT JOIN categoria AS c ON f.id_categoria = c.id_categoria
             LEFT JOIN institucion AS i ON f.id_institucion = i.id_institucion
