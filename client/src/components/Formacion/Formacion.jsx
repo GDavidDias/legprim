@@ -14,6 +14,7 @@ import axios from "axios";
 import {URL} from '../../../varGlobal';
 import { fetchAllNivel } from '../../utils/fetchAllNivel';
 import Paginador from '../Paginador/Paginador';
+import { IoTrash } from "react-icons/io5";
 
 const Formacion = () => {
 
@@ -22,6 +23,7 @@ const Formacion = () => {
     const[isOpenModal, openModal, closeModal]=useModal(false);
     const[isOpenModalNuevaFormacion, openModalNuevaFormacion, closeModalNuevaFormacion]=useModal(false);
     const[isOpenModalVistaFormacion, openModalVistaFormacion, closeModalVistaFormacion]=useModal(false);
+    const[isOpenModalEliminarFormacion, openModalEliminarFormacion, closeModalEliminarFormacion]=useModal(false);
 
     //E.L. para cuadro de busqueda Nombre Curso
     const[inputSearch, setInputSearch]=useState('');
@@ -73,6 +75,9 @@ const Formacion = () => {
 
     //tipo de consulta
     const[tipoConsultaSql, setTipoConsultaSql]=useState('');
+
+    const[datosFormacionEliminar, setDatosFormacionEliminar]=useState({});
+    const[obsEliminaFormacion, setObsEliminaFormacion]=useState("");
 
 
     const handleChangeValue = (event) => {
@@ -168,9 +173,10 @@ const Formacion = () => {
 
     const submitGuardarFormacion = async() =>{
         console.log('se presiona boton Guardar Nueva Foramcion');
-        await agregaDatosAuditor();
+        const resFormFormacionActualizado = await agregaDatosAuditor();
+        console.log('que tiene formFormacionActualizado: ', resFormFormacionActualizado);
         try{    
-            await axios.post(`${URL}/api/insertformacion`,formFormacion)
+            await axios.post(`${URL}/api/insertformacion`,resFormFormacionActualizado)
                 .then(async res=>{
                     setMensajeModalInfo('Formacion Creada Correctamente');
                     openModal();
@@ -180,29 +186,35 @@ const Formacion = () => {
                 })
 
         }catch(error){
-            console.log('que traer error guardar nueva formacion: ', error.message);
+            console.log('que traer error guardar/update formacion: ', error.message);
         }
     };
 
     const agregaDatosAuditor = async()=>{
-        const fechahoy = formatoFechaHora(obtenerFechaActual());
-        console.log('que tiene fecha hoy: ', fechahoy);
+        // const fechahoy = obtenerFechaActual();
+        // console.log('que tiene fecha hoy: ', fechahoy);
+        console.log('INGRESA DATOS AUDITOR')
+        let formFormacionActualizado;
 
         if(tipoConsultaSql==='insert'){
             console.log('ES UN INSERT');
-            setFormFormacion((prevState)=>({
-                ...prevState,
+            formFormacionActualizado={
+                ...formFormacion,
                 user_create:userSG.username,
-                date_create: fechahoy
-            }));
+                date_create: obtenerFechaActual()
+            };
         }else if(tipoConsultaSql==='update'){
             console.log('ES UN UPDATE');
-            setFormFormacion((prevState)=>({
-                ...prevState,
+            formFormacionActualizado={
+                ...formFormacion,
                 user_update:userSG.username,
-                date_update: fechahoy
-            }));
+                date_update: obtenerFechaActual()
+            };
         }
+
+        //setFormFormacion(formFormacionActualizado);
+
+        return formFormacionActualizado;
     };
 
     const obtenerFechaActual = () => {
@@ -260,10 +272,21 @@ const Formacion = () => {
         openModalVistaFormacion();
     };
 
+    const submitEliminarFormacion = (datos) => {
+        //Guardo los datos a eliminar
+        setDatosFormacionEliminar(datos);
+
+        //abro ventana modal de confirmacion y observacion
+        openModalEliminarFormacion();
+    };
+
     const submitGuardarVistaFormacion = async() => {
+        console.log('se presiona boton Guardar Vista Formacion');
+        const resFormFormacionActualizado = await agregaDatosAuditor();
+        console.log('que tiene formFormacionActualizado: ', resFormFormacionActualizado);        
         await agregaDatosAuditor();
         try{
-            await axios.put(`${URL}/api/updateformacion/${editIdFormacion}`,formFormacion)
+            await axios.put(`${URL}/api/updateformacion/${editIdFormacion}`,resFormFormacionActualizado)
             .then(async res=>{
                 setMensajeModalInfo('Formacion Modificada Correctamente');
                 openModal();
@@ -316,17 +339,58 @@ const Formacion = () => {
         setInstitutoFormacion('');
     };  
 
+
     const handlePageChange = (nuevaPagina)=>{
         console.log('que tiene paginacion: ', paginacion);
+
 
         if(nuevaPagina>0 && nuevaPagina<=paginacion?.totalPages){
             setCurrentPage(nuevaPagina);
         };
     };
 
+
+    const handleChangeObsEliminaFormacion = (event) =>{
+        const {name, value}=event.target;
+        setObsEliminaFormacion(value);
+    };
+
+    const procesoEliminarFormacion = async() =>{
+        const body = {
+            user_delete:userSG.username,
+            date_delete:obtenerFechaActual(),
+            obs_delete:obsEliminaFormacion
+        };
+        console.log('que tiene body a enviar a deleteformacion: ', body);
+
+        try{
+            await axios.put(`${URL}/api/deleteformacion/${datosFormacionEliminar.id_formacion}`, body)
+                .then(async res=>{
+                    //Muestra mensaje de datos actualizados en el borrado.
+                    setMensajeModalInfo('Formacion eliminada correctamente');
+                    openModal();
+                })
+                .catch(error=>{
+                    console.log('que trae error deleteFormacion: ', error)
+                })
+
+        }catch(error){
+            console.log('que tiene error submitEliminarFormacion: ', error.message);
+        }
+    };
+
+    useEffect(()=>{
+        console.log('que tiene datosFormacionEliminar: ', datosFormacionEliminar);
+    },[datosFormacionEliminar]);
+
     useEffect(()=>{
         console.log('que tiene modificaVistaFormacion: ', modificaVistaFormacion);
     },[modificaVistaFormacion])
+
+    useEffect(()=>{
+        console.log('cual es el tipo de consulta: ', tipoConsultaSql);
+    },[tipoConsultaSql])
+
 
     useEffect(()=>{
         console.log('que tiene inputSearch: ', inputSearch);
@@ -353,7 +417,7 @@ const Formacion = () => {
     },[])
 
   return (
-    <div>
+    <div className='nontranslate'>
         <div>
             <label className='ml-2 text-lg font-bold'>Formacion</label>
         </div>
@@ -405,6 +469,7 @@ const Formacion = () => {
                                 onClick={()=>handleCancelSearchRes()}
                             />
                         }
+                        
                     </div>
                 </div>
                 {/* FILTRO BUSQUEDA INSTITUCION */}
@@ -494,6 +559,11 @@ const Formacion = () => {
                                                     className="font-bold text-lg mr-2 text-sky-500 hover:scale-150 transition-all duration-500 cursor-pointer"
                                                     title="Ver Datos"
                                                     onClick={()=>submitVerDatosDocente(formacion)}
+                                                />
+                                                <IoTrash 
+                                                    className="font-bold text-xl text-red-500 hover:scale-150 transition-all duration-500 cursor-pointer"
+                                                    title="Eliminar Formacion"
+                                                    onClick={()=>submitEliminarFormacion(formacion)}
                                                 />
                                             </div>
                                         </td>
@@ -946,6 +1016,37 @@ const Formacion = () => {
                 </div>  
                 
 
+            </div>
+        </ModalEdit>
+
+
+        {/* MODAL CONFIRMACION ELIMINAR FORMACION */}
+        <ModalEdit isOpen={isOpenModalEliminarFormacion} closeModal={closeModalEliminarFormacion}>
+            <div className="mt-2 w-[30vw] flex flex-col items-center">
+                {/* <h1 className="text-xl text-center font-bold">{mensajeModalConfirm}</h1> */}
+                <h1 className="text-xl text-center font-bold mb-4">Eliminar la Vacante</h1>
+                <div className="flex flex-col justify-start">
+                    <label>Observacion:</label>
+                    <input 
+                        className="border-[1px] border-black w-[25vw] rounded"
+                        value={obsEliminaFormacion}
+                        onChange={handleChangeObsEliminaFormacion}
+                    ></input>
+                </div>
+                <div className="flex flex-row">
+                    <div className="flex justify-center mr-2">
+                        <button
+                            className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
+                            onClick={()=>{procesoEliminarFormacion(); closeModalEliminarFormacion();setObsEliminaFormacion("")}}
+                        >ACEPTAR</button>
+                    </div>
+                    <div className="flex justify-center ml-2">
+                        <button
+                            className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
+                            onClick={()=>{closeModalEliminarFormacion();setObsEliminaFormacion("")}}
+                        >CANCELAR</button>
+                    </div>
+                </div>    
             </div>
         </ModalEdit>
 

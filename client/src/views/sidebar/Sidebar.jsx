@@ -33,8 +33,9 @@ const Sidebar = () => {
 
   useEffect(()=>{
     console.log('que tiene userSG: ', userSG);
-    if(userSG.id_usuario===''){
+    if(userSG.username===''){
       navigate('/');
+      dispatch(outUser());
     }
   },[userSG])
 

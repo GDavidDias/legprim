@@ -14,7 +14,7 @@ module.exports = async(req,res)=>{
     try{
 
         const [result] = await pool.query(`UPDATE formacion SET user_delete='${user_delete}', date_delete='${date_delete}', obs_delete='${obs_delete}' 
-        WHERE id_formacion=${idFormacion};  `);
+        WHERE id_formacion=${idFormacion} ;  `);
 
         console.log('que trae result deleteFormacion: ', result);
 

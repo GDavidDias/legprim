@@ -14,15 +14,16 @@ module.exports = async(req,res)=>{
 
         const offset = (page-1)*limit;
 
-        let armaquery = `SELECT f.id_formacion, f.id_categoria, c.descripcion AS categoria, f.descripcion, f.cantidad_horas, f.fecha_emision, f.id_institucion, i.descripcion AS institucion, f.puntaje, f.resolucion, f.id_alcance, f.id_evaluacion, f.id_modalidad, m.descripcion AS modalidad, f.id_nivel, n.descripcion AS nivel, f.observacion
+        let armaquery = `SELECT f.id_formacion, f.id_categoria, c.descripcion AS categoria, f.descripcion, f.cantidad_horas, f.fecha_emision, f.id_institucion, i.descripcion AS institucion, f.puntaje, f.resolucion, f.id_alcance, f.id_evaluacion, f.id_modalidad, m.descripcion AS modalidad, f.id_nivel, n.descripcion AS nivel, f.observacion, f.user_delete
             FROM formacion AS f 
             LEFT JOIN categoria AS c ON f.id_categoria = c.id_categoria
             LEFT JOIN institucion AS i ON f.id_institucion = i.id_institucion
             LEFT JOIN alcance AS a ON f.id_alcance = a.id_alcance
             LEFT JOIN modalidad AS m ON f.id_modalidad = m.id_modalidad
             LEFT JOIN nivel AS n ON f.id_nivel = n.id_nivel
-            WHERE 1=1
+            WHERE (f.user_delete IS NULL OR f.user_delete = "")
         `;
+
 
         //Condicion para Buscar por nombre de curso
         if(filtroBusqueda && filtroBusqueda!=''){
