@@ -16,6 +16,7 @@ module.exports = async(req,res)=>{
             FROM legajo_formacion AS lf
             LEFT JOIN formacion AS f ON lf.id_formacion = f.id_formacion
             WHERE  lf.id_legajo = ${idLegajo}
+            AND lf.obs_delete IS NULL
         `;
 
         if(filtroBusqueda && filtroBusqueda!=""){

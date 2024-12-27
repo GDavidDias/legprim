@@ -6,7 +6,8 @@ const {
     getAllFormacionLegajo,
     insertFormacion,
     updateFormacion,
-    deleteFormacion
+    deleteFormacion,
+    deleteLegajoFormacion
 } = require('../controllers/formacion.controllers');
 
 const router = Router();
@@ -28,5 +29,8 @@ router.put('/updateformacion/:idFormacion', updateFormacion);
 
 //Borra una Formacion
 router.put('/deleteformacion/:idFormacion', deleteFormacion);
+
+//Borra Logicamente una Formacion de un legajo
+router.put('/delformacionlegajo/:idLegajoFormacion', deleteLegajoFormacion);
 
 module.exports = router;

@@ -13,6 +13,7 @@ import { fetchAllFormacionlegajo } from '../../utils/fetchAllFormacionLegajo';
 import Paginador from "../Paginador/Paginador.jsx";
 import { useSelector } from 'react-redux';
 import { fetchAllInstituciones } from '../../utils/fetchAllInstitucion.js';
+import { IoTrash } from 'react-icons/io5';
 
 
 const Docentes = () => {
@@ -58,6 +59,9 @@ const Docentes = () => {
 
     //pagina actual DE CE
     const[currentPageCE, setCurrentPageCE]=useState(1);
+
+    //observaciones para eliminar el curso del legajo
+    const[obsDelete, setObsDelete]=useState('');
 
 
     const fetchDocentes = async(page)=>{
@@ -176,7 +180,7 @@ const Docentes = () => {
             "idLegajo":datosLegajoSelect.id_legajo,
             "idFormacion":datosFormacion.id_formacion,
             "username": userSG.username,
-            "fechaInsert": fechaHoraActualAddFormacion
+            "fechaInsert": fechaHoraActualAddFormacion,
         }
     
         try{
@@ -194,6 +198,34 @@ const Docentes = () => {
         }catch(error){
             console.log('error en addLegajoFormacion: ', error.message);
         }
+    };
+
+    const submitDelFormacion = async(datos) =>{
+      console.log('Presiona Eliminar Formacion de Legajo que tiene datos: ', datos);
+      console.log('datos de usuario: ', userSG);
+
+      const fechaHoraActualDelFormacionLegajo = await traeFechaHoraActual();
+
+      const dataBody = {
+        "user_delete": userSG.username,
+        "date_delete": fechaHoraActualDelFormacionLegajo,
+        "obs_delete": 'Se desasocia el Curso del Legajo'
+        }
+        console.log('que tiene idLegajoFormacion: ', datos.id_legajo_formacion);
+        console.log('que tiene body a pasar a delformacionlegajo: ', dataBody);
+
+    try{
+        await axios.put(`${URL}/api/delformacionlegajo/${datos.id_legajo_formacion}`, dataBody)
+        .then(async res=>{
+            setMensajeModalInfo('Formacion Eliminada del Legajo');
+            openModal();
+        })
+        .catch(error=>{
+            console.log('que tiene error deleteLegajoFormacion: ', error);
+        })
+    }catch(error){
+        console.log('que traer error eliminar legajo formacion: ', error.message);
+    }
 
     };
 
@@ -211,6 +243,7 @@ const Docentes = () => {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
+
     const closeModalNotifInsertFormacion=async()=>{
         //se actualiza Parte Derecha de CUrsos del legjo
         traeFormacionLegajo(datosLegajoSelect.id_legajo, inputSearchCL, inputSearchResCL);
@@ -218,6 +251,7 @@ const Docentes = () => {
         //Se cierra Modal Notificaciones
         closeModal();
     };
+
 
     const traeFormacionLegajo = async(idLegajo, filtroBusqueda, filtroResolucion, filtroInstituto) =>{
         const data = await fetchAllFormacionlegajo(idLegajo, filtroBusqueda, filtroResolucion, filtroInstituto);
@@ -608,11 +642,13 @@ const Docentes = () => {
                                                 >
                                                     <td className='w-[2mm] text-center'>
                                                         <div>
-                                                            <IoMdAdd
-                                                                className="font-bold text-lg mr-2 text-sky-500 hover:scale-150 transition-all duration-500 cursor-pointer"
-                                                                onClick={()=>submitAddFormacion(curso)}
-                                                                title='Agregar Formacion a Legajo'
-                                                            />
+                                                            {(userSG.permiso===1 || userSG.permiso===4) &&
+                                                                <IoMdAdd
+                                                                    className="font-bold text-lg mr-2 text-sky-500 hover:scale-150 transition-all duration-500 cursor-pointer"
+                                                                    onClick={()=>submitAddFormacion(curso)}
+                                                                    title='Agregar Formacion a Legajo'
+                                                                />
+                                                            }
                                                         </div>
                                                     </td>
                                                     <td className='w-[25px] text-sm  text-center'>{curso.id_formacion}</td>
@@ -728,6 +764,7 @@ const Docentes = () => {
                                         <th className="w-[50px] border-r-[1px] border-zinc-300">Resolucion</th>
                                         <th className="w-[150px] border-r-[1px] border-zinc-300">Nombre Curso</th>
                                         <th className="w-[50px] border-r-[1px] border-zinc-300">Horas</th>
+                                        <th className="w-[50px] border-r-[1px] border-zinc-300 ">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -750,6 +787,17 @@ const Docentes = () => {
                                                     <td className='w-[50px] text-sm text-start'>{curso.resolucion}</td>
                                                     <td className='w-[150px] text-sm text-start'>{curso.descripcion}</td>
                                                     <td className='w-[50px] text-sm text-start'>{curso.horas}</td>
+                                                    <td className='w-[50px] text-sm text-start'>{
+                                                        <div className='flex justify-center'>
+                                                            {(userSG.permiso === 1 || userSG.permiso === 4) &&
+                                                                <IoTrash 
+                                                                    className="font-bold text-xl text-red-500 hover:scale-150 transition-all duration-500 cursor-pointer"
+                                                                    title="Eliminar Formacion"
+                                                                    onClick={()=>submitDelFormacion(curso)}
+                                                                />
+                                                            }
+                                                        </div>
+                                                    }</td>
                                                 </tr>
                                             )
                                         })

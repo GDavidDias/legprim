@@ -11,7 +11,7 @@ module.exports = async(req,res)=>{
 
     try{
 
-        let armaquery = `INSERT INTO legajo_formacion(id_legajo, id_formacion, username, fecha_insert) VALUES(
+        let armaquery = `INSERT INTO legajo_formacion(id_legajo, id_formacion, user_create, date_create) VALUES(
             ${idLegajo}, ${idFormacion}, '${username}', '${fechaInsert}');
         `;
 

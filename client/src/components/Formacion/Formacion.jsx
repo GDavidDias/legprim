@@ -510,7 +510,7 @@ const Formacion = () => {
                 <div>
                     <div className="flex flex-row ">
                         {/* <label className="ml-4 text-lg font-sans font-bold">VACANTES</label> */}
-                        {(userSG.permiso!=3 && userSG.permiso!=4) &&
+                        {(userSG.permiso===1 || userSG.permiso===2 || userSG.permiso===4) &&
                             <button 
                                 className="ml-2 px-[2px] border-[1px] border-[#73685F] rounded hover:bg-[#7C8EA6] hover:text-white hover:border-[#7C8EA6] shadow w-[50mm]"
                                 onClick={()=>submitNuevaFormacion()}
@@ -555,16 +555,20 @@ const Formacion = () => {
                                         <td className='w-[50mm] text-center'>{formacion.nivel}</td>
                                         <td>
                                             <div className='flex justify-center'>
+
                                                 <FaEye 
                                                     className="font-bold text-lg mr-2 text-sky-500 hover:scale-150 transition-all duration-500 cursor-pointer"
                                                     title="Ver Datos"
                                                     onClick={()=>submitVerDatosFormacion(formacion)}
                                                 />
-                                                <IoTrash 
-                                                    className="font-bold text-xl text-red-500 hover:scale-150 transition-all duration-500 cursor-pointer"
-                                                    title="Eliminar Formacion"
-                                                    onClick={()=>submitEliminarFormacion(formacion)}
-                                                />
+
+                                                {(userSG.permiso===1 || userSG.permiso===4 ) &&
+                                                    <IoTrash 
+                                                        className="font-bold text-xl text-red-500 hover:scale-150 transition-all duration-500 cursor-pointer"
+                                                        title="Eliminar Formacion"
+                                                        onClick={()=>submitEliminarFormacion(formacion)}
+                                                    />
+                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -999,7 +1003,7 @@ const Formacion = () => {
                     </div>
                 </div>
                 <div className="flex flex-row">
-                    {(validaFormFormacion && modificaVistaFormacion) &&
+                    {(validaFormFormacion && modificaVistaFormacion && userSG.permiso!=5) &&
                         <div className="flex justify-center mr-2">
                             <button
                                 className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"

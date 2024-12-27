@@ -84,20 +84,8 @@ const Landing = () => {
             if(datavalida.length!=0){
                 console.log('que tiene datavalida: ', datavalida[0]);
                 dispatch(setUser(datavalida));
-                // if(datavalida[0].nivel===1){
-                //     //USUARIO DE NIVEL INICIAL
-                //     const datosNivel=[{id_nivel:1, descripcion:'INICIAL'}];
-                //     dispatch(setNivel(datosNivel));
-                // }else if(datavalida[0].nivel===2){
-                //     //USUARIO DE NIVEL PRIMARIO
-                //     const datosNivel=[{id_nivel:2, descripcion:'PRIMARIO'}];
-                //     dispatch(setNivel(datosNivel));
-                // }else if(datavalida[0].nivel===3){
-                //     //SI ES ADMINISTRADOR INGRESA A PRIMARIO Y PODRA CAMBIAR DE NIVEL DENTRO
-                //     const datosNivel=[{id_nivel:2, descripcion:'PRIMARIO'}];
-                //     dispatch(setNivel(datosNivel));
-                // }
-                if(datavalida[0].permiso===1){
+
+                if(datavalida[0].permiso===1 || datavalida[0].permiso===4 || datavalida[0].permiso===5){
                     navigate('/home');
                     dispatch(setPage('Docentes'));
                 }else if(datavalida[0].permiso ===2){
