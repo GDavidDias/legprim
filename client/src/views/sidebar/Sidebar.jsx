@@ -37,6 +37,7 @@ const Sidebar = () => {
       navigate('/');
       dispatch(outUser());
     }
+
   },[userSG])
 
   return (
@@ -63,6 +64,7 @@ const Sidebar = () => {
         {/* MENU PRINCIPAL */}
         <div className='ml-4 mt-2 text-white text-base'>
           {/* <label className='font-normal text-lg'>Docentes</label> */}
+          {(userSG.permiso === 1 || userSG.permiso ===4 || userSG.permiso===5) &&
             <div 
                 className={` rounded p-[4px] flex flex-row justify-start items-center  text-white 
                   ${(pageSG==='Docentes')
@@ -76,6 +78,7 @@ const Sidebar = () => {
                 <PiUserListBold className="text-xl font-bold mr-2"/>
                 <label className="font-light desktop-xl:text-lg">Docentes</label>
             </div>
+          }
             <div 
                 className={` rounded p-[4px] flex flex-row justify-start items-center  text-white 
                   ${(pageSG==='Formacion')

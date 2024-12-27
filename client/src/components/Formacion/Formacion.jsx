@@ -74,7 +74,8 @@ const Formacion = () => {
     const[currentPage, setCurrentPage]=useState(1);
 
     //tipo de consulta
-    const[tipoConsultaSql, setTipoConsultaSql]=useState('');
+    //const[tipoConsultaSql, setTipoConsultaSql]=useState('');
+    let tipoConsultaSql;
 
     const[datosFormacionEliminar, setDatosFormacionEliminar]=useState({});
     const[obsEliminaFormacion, setObsEliminaFormacion]=useState("");
@@ -89,6 +90,7 @@ const Formacion = () => {
             [name]:value
         });
         setModificaVistaFormacion(true)
+        
     };
 
     const handleInputSearchChange = (event) =>{
@@ -172,6 +174,7 @@ const Formacion = () => {
 
 
     const submitGuardarFormacion = async() =>{
+        tipoConsultaSql = 'insert';
         console.log('se presiona boton Guardar Nueva Foramcion');
         const resFormFormacionActualizado = await agregaDatosAuditor();
         console.log('que tiene formFormacionActualizado: ', resFormFormacionActualizado);
@@ -194,6 +197,7 @@ const Formacion = () => {
         // const fechahoy = obtenerFechaActual();
         // console.log('que tiene fecha hoy: ', fechahoy);
         console.log('INGRESA DATOS AUDITOR')
+        //console.log()
         let formFormacionActualizado;
 
         if(tipoConsultaSql==='insert'){
@@ -210,6 +214,8 @@ const Formacion = () => {
                 user_update:userSG.username,
                 date_update: obtenerFechaActual()
             };
+        }else{
+            console.log('ERROR NO AGREGA DATOS AUDITOR');
         }
 
         //setFormFormacion(formFormacionActualizado);
@@ -225,11 +231,16 @@ const Formacion = () => {
     };
 
 
-    const submitCloseModalNotificacion = ()=>{
+    const submitCloseModalNotificacion = async()=>{
         closeModal();
         closeModalNuevaFormacion();
         closeModalVistaFormacion();
         setEditIdFormacion('');
+        borraFormFormacion();
+        traeAllFormaciones(currentPage);
+    };
+    
+    const borraFormFormacion = () =>{
         setFormFormacion({
             id_categoria:'',
             descripcion:'',
@@ -244,10 +255,9 @@ const Formacion = () => {
             id_nivel:'',
             observacion:''
         });
-        traeAllFormaciones(currentPage);
-    };
+    }
 
-    const submitVerDatosDocente = (datos) =>{
+    const submitVerDatosFormacion = (datos) =>{
         setModificaVistaFormacion(false);
         console.log('se presiona para ver los datos de la formacion: ', datos);
         console.log('como convierte fechahora: ', formatoFechaHora(datos.fecha_emision));
@@ -266,8 +276,10 @@ const Formacion = () => {
             id_nivel:datos.id_nivel,
             observacion:datos.observacion
         });
-
+        
         setEditIdFormacion(datos.id_formacion);
+        
+        //setTipoConsultaSql('');
 
         openModalVistaFormacion();
     };
@@ -281,10 +293,11 @@ const Formacion = () => {
     };
 
     const submitGuardarVistaFormacion = async() => {
+        tipoConsultaSql = 'update';
         console.log('se presiona boton Guardar Vista Formacion');
         const resFormFormacionActualizado = await agregaDatosAuditor();
         console.log('que tiene formFormacionActualizado: ', resFormFormacionActualizado);        
-        await agregaDatosAuditor();
+        //await agregaDatosAuditor();
         try{
             await axios.put(`${URL}/api/updateformacion/${editIdFormacion}`,resFormFormacionActualizado)
             .then(async res=>{
@@ -302,20 +315,7 @@ const Formacion = () => {
     const submitCloseModalVistaFormacion = ()=>{
         closeModalVistaFormacion();
         setEditIdFormacion('');
-        setFormFormacion({
-            id_categoria:'',
-            descripcion:'',
-            cantidad_horas:'',
-            fecha_emision:'',
-            id_institucion:'',
-            puntaje:'',
-            resolucion:'',
-            id_alcance:'',
-            id_evaluacion:'',
-            id_modalidad:'',
-            id_nivel:'',
-            observacion:''
-        });
+        borraFormFormacion();
     };
 
     function formatoFechaHora (datetime){
@@ -387,9 +387,9 @@ const Formacion = () => {
         console.log('que tiene modificaVistaFormacion: ', modificaVistaFormacion);
     },[modificaVistaFormacion])
 
-    useEffect(()=>{
-        console.log('cual es el tipo de consulta: ', tipoConsultaSql);
-    },[tipoConsultaSql])
+    // useEffect(()=>{
+    //     console.log('cual es el tipo de consulta: ', tipoConsultaSql);
+    // },[tipoConsultaSql])
 
 
     useEffect(()=>{
@@ -558,7 +558,7 @@ const Formacion = () => {
                                                 <FaEye 
                                                     className="font-bold text-lg mr-2 text-sky-500 hover:scale-150 transition-all duration-500 cursor-pointer"
                                                     title="Ver Datos"
-                                                    onClick={()=>submitVerDatosDocente(formacion)}
+                                                    onClick={()=>submitVerDatosFormacion(formacion)}
                                                 />
                                                 <IoTrash 
                                                     className="font-bold text-xl text-red-500 hover:scale-150 transition-all duration-500 cursor-pointer"
@@ -785,7 +785,7 @@ const Formacion = () => {
                         <div className="flex justify-center mr-2">
                             <button
                                 className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
-                                onClick={()=>{submitGuardarFormacion();setTipoConsultaSql('insert')}}
+                                onClick={()=>{submitGuardarFormacion()}}
                             >GUARDAR</button>
                         </div>
                     }
@@ -999,11 +999,11 @@ const Formacion = () => {
                     </div>
                 </div>
                 <div className="flex flex-row">
-                    {(validaFormFormacion || modificaVistaFormacion) &&
+                    {(validaFormFormacion && modificaVistaFormacion) &&
                         <div className="flex justify-center mr-2">
                             <button
                                 className="border-2 border-[#557CF2] mt-10 font-bold w-40 h-8 bg-[#557CF2] text-white hover:bg-sky-300 hover:border-sky-300"
-                                onClick={()=>{submitGuardarVistaFormacion();setTipoConsultaSql('update')}}
+                                onClick={()=>{submitGuardarVistaFormacion()}}
                             >GUARDAR</button>
                         </div>
                     }
